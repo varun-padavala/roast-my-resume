@@ -1,0 +1,51 @@
+@import "tailwindcss";
+
+html,
+body,
+#root{
+  width:100%;
+  min-height:100vh;
+  background:#09090B;
+  color:#FAFAFA;
+}
+.bleed-br {
+          position: fixed;
+          bottom: -120px; right: -120px;
+          width: 500px; height: 500px;
+          background: radial-gradient(ellipse at center,
+            rgba(255, 59, 59, 0.13) 0%,
+            rgba(255, 59, 59, 0.05) 45%,
+            transparent 72%
+          );
+          pointer-events: none; z-index: 0;
+          border-radius: 50%;
+        }
+
+        .bleed-tl {
+          position: fixed;
+          top: -140px; left: -140px;
+          width: 560px; height: 560px;
+          background: radial-gradient(ellipse at center,
+            rgba(0, 160, 120, 0.1) 0%,
+            rgba(0, 120, 90, 0.04) 45%,
+            transparent 72%
+          );
+          pointer-events: none; z-index: 0;
+          border-radius: 50%;
+        }
+        .watermark {
+          position: fixed;
+          top: 120px;
+          right: 120px;
+          font-family: 'Bebas Neue', sans-serif;
+          font-size: clamp(180px, 18vw, 320px);
+          font-weight: 900;
+          color: rgba(255,255,255,0.04);
+          letter-spacing: -0.04em;
+          white-space: nowrap;
+          text-align: right;
+          pointer-events: none;
+          user-select: none;
+          z-index: 0;
+          
+        }

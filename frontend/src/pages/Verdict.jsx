@@ -3,7 +3,7 @@ import { useResume } from "../context/ResumeContext";
 import { useNavigate } from "react-router-dom";
 import AppNav from "../components/Appnav";
 import { useState, useEffect } from "react";
-
+import { API_URL } from "../config";
 
 // ─── STATIC FALLBACK CONTENT ─────────────────────────────────────────────────
 const FALLBACK = {
@@ -515,7 +515,8 @@ export default function Verdict() {
 
     async function loadVerdict() {
       try {
-        const res = await fetch("http://localhost:3000/api/analyze", {
+
+        const res = await fetch(`${API_URL}/api/analyze`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({

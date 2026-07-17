@@ -4,7 +4,7 @@ import { useState, useCallback, useRef } from "react";
 import { DEMO_RESUME } from "../data/demoResume";
 import AppNav from "../components/Appnav";
 import { useEffect } from "react";
-
+import { API_URL } from "../config";
 
 function Eyebrow({ children }) {
   return (
@@ -73,19 +73,16 @@ export default function Upload() {
     if (!f) return;
     await uploadResumeFile(f);
   };
+
     const uploadResumeFile = async (file) => {
   try {
     const formData = new FormData();
     formData.append("resume", file);
-    
-const API_URL = import.meta.env.VITE_API_URL;
 
-const res = await fetch(`${API_URL}/api/upload`, {
-      {
-        method: "POST",
-        body: formData,
-      }
-    );
+  const res = await fetch(`${API_URL}/api/upload`, {
+    method: "POST",
+    body: formData,
+  });
 
     const data = await res.json();
 
@@ -326,7 +323,6 @@ useEffect(() => {
                 color: "rgba(255,255,255,0.18)", letterSpacing: "0.08em",
               }}>— or —</span>
             </div>
-
             <button
               style={{
                 width: "100%", marginTop: 14, padding: "14px",
@@ -343,8 +339,10 @@ useEffect(() => {
                 setResumeLoaded(true);
                 setFile({ name: "demo-resume.txt" });
                 navigate('/target');
+                console.log("API_URL =", API_URL);
               }}
             >
+
               USE DEMO RESUME INSTEAD →
             </button>
           </div>

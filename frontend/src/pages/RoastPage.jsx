@@ -12,7 +12,7 @@ import AlexisAvatar from "../../characters/AlexisAvatar";
 import GeraldAvatar from "../../characters/GeraldAvatar";
 import ChadAvatar from "../../characters/ChadAvatar";
 import RavenAvatar from "../../characters/RavenAvatar";
-
+import { API_URL } from "../config";
 function hexToRgb(hex) {
   const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
   return result
@@ -260,9 +260,9 @@ const [roastSpeed,        setRoastSpeed]         = useState(1);
       let pack = forceRefresh ? null : roastPack;
 
       if (!pack) {
-        let res;
-        try {
-          res = await fetch("http://localhost:3000/api/roast", {
+    let res;
+    try {
+      res = await fetch(`${API_URL}/api/roast`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ resumeText: indexedResume }),

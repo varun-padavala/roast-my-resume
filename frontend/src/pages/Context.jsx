@@ -2,6 +2,7 @@ import { useNavigate } from "react-router-dom";
 import AppNav from "../components/Appnav";
 import { useResume } from "../context/ResumeContext";
 import { useEffect,useState } from "react";
+import { API_URL } from "../config";
 const CHECKLIST = [
   { label: "PARSING DOCUMENT",    sub: "Reading file structure & encoding" },
   { label: "EXTRACTING CONTENT",  sub: "Pulling text, sections & metadata" },
@@ -112,7 +113,7 @@ const handleGetVerdict = async () => {
   }, 900);
 
   try {
-    const res = await fetch("http://localhost:3000/api/analyze", {
+    const res = await fetch(`${API_URL}/api/analyze`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ resumeText, selectedRole, seniority, jobDesc }),

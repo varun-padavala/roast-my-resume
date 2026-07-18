@@ -151,6 +151,24 @@ const [roastSpeed,        setRoastSpeed]         = useState(1);
         chatFeedRef.current.scrollTop = chatFeedRef.current.scrollHeight;
     }, 50);
   };
+  useEffect(() => {
+  const preventDefault = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+  };
+
+  window.addEventListener("dragenter", preventDefault);
+  window.addEventListener("dragover", preventDefault);
+  window.addEventListener("dragleave", preventDefault);
+  window.addEventListener("drop", preventDefault);
+
+  return () => {
+    window.removeEventListener("dragenter", preventDefault);
+    window.removeEventListener("dragover", preventDefault);
+    window.removeEventListener("dragleave", preventDefault);
+    window.removeEventListener("drop", preventDefault);
+  };
+}, []);
 
   //ideal msgs
   useEffect(() => {

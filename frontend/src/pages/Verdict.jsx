@@ -723,7 +723,7 @@ export default function Verdict() {
               </div>
             </div>
 
-            //tabs
+            
             <div>
               <div className="tabs-row">
                 {ANALYSIS_TABS.map(t => (
@@ -742,7 +742,7 @@ export default function Verdict() {
               </div>
             </div>
 
-            //cta
+            
             <div className="cta-box">
               <div style={{ fontFamily:"'Bebas Neue',sans-serif", fontSize:"clamp(22px,5vw,28px)", letterSpacing:"0.08em", marginBottom:10 }}>
                 STILL NOT SATISFIED?
@@ -762,7 +762,7 @@ export default function Verdict() {
               </button>
             </div>
 
-            //analyse another
+            
             <div className="analyse-another-row">
               <button
                 onClick={() => { setSelectedRole(null); setSeniority(null); navigate("/upload"); }}

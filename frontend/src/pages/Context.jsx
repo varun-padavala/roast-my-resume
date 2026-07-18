@@ -283,7 +283,7 @@ const handleGetVerdict = async () => {
         <div className="watermark">CONTEXT</div>
 
         <AppNav navStep={2} />
-        //main content 
+        
         <div style={{
           maxWidth: 1400,
           margin: "0 auto",
@@ -463,7 +463,7 @@ const handleGetVerdict = async () => {
             })}
           </div>
 
-          //progress
+          
           <div style={{ display:"flex", justifyContent:"space-between", marginTop:14 }}>
             <span style={{ fontFamily:"'Space Mono',monospace", fontSize:10, color:"rgba(255,255,255,0.2)", letterSpacing:"0.1em" }}>
               {loadStep} / {CHECKLIST.length} CHECKS

@@ -312,10 +312,10 @@ export default function Landing() {
       `}</style>
 
       <div>
-        //nav bar
+        
         <Nav></Nav>
 
-        //hero
+
         <Hero onTryDemo={scrollToDemo} />
 
         <section className="lp-section" style={{ paddingTop: 20 }}>
@@ -351,14 +351,13 @@ export default function Landing() {
           </div>
         </section>
 
-        //demoo
         <section id="lp-demo" className="lp-section" style={{ background: "rgba(255,255,255,0.012)", borderTop: "1px solid rgba(255,255,255,0.07)", borderBottom: "1px solid rgba(255,255,255,0.07)" }}>
           <p className="lp-section-label">// Interactive demo</p>
           <h2 className="lp-section-h2">WATCH IT<br />HAPPEN.</h2>
           <DemoRoast />
         </section>
 
-        //process
+        
         <section className="lp-section">
           <p className="lp-section-label">// How it works</p>
           <h2 className="lp-section-h2">THE PROCESS IS<br />SIMPLE. THE PAIN<br />IS NOT.</h2>
@@ -379,7 +378,7 @@ export default function Landing() {
           </div>
         </section>
 
-        //ats
+        
         <section className="lp-section">
           <p className="lp-section-label">// ATS scoring engine</p>
           <h2 className="lp-section-h2">THE MACHINE<br />NEVER LIES.</h2>
@@ -421,7 +420,7 @@ export default function Landing() {
               </div>
             </div>
 
-            //Strengths / Weaknesses
+            
             <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
               <div style={{ border: "1px solid rgba(255,255,255,0.07)", borderRadius: 6, padding: 18, background: "rgba(255,255,255,0.012)", flex: 1 }}>
                 <p style={{ fontFamily: "'Space Mono', monospace", fontSize: 8, letterSpacing: "0.14em", textTransform: "uppercase", color: "#00d084", marginBottom: 12 }}>✓ STRENGTHS</p>
@@ -453,7 +452,7 @@ export default function Landing() {
           </div>
         </section>
 
-        //cta
+        
         <section className="lp-section" style={{ textAlign: "center", position: "relative", overflow: "hidden" }}>
           <div style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%,-50%)", width: 600, height: 300, background: "radial-gradient(ellipse, rgba(255,255,255,0.02) 0%, transparent 70%)", pointerEvents: "none" }} />
           <div style={{ position: "relative", zIndex: 2 }}>
@@ -474,7 +473,7 @@ export default function Landing() {
           </div>
         </section>
 
-        //footer
+        
         <footer className="lp-footer">
           <span style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 16, letterSpacing: "0.06em", color: "rgba(255,255,255,0.25)" }}>
             RoastMyResume.ai

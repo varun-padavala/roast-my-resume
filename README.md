@@ -196,9 +196,10 @@ npm run dev
 Create a `.env` file inside the backend.
 
 ```env
-CLAUDE_API_KEY=YOUR_API_KEY
 
 GEMINI_API_KEY=YOUR_API_KEY
+or
+Groq_API_KEY
 
 PORT=5000
 ```

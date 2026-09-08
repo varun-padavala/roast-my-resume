@@ -53,15 +53,16 @@ function Ghost({ children }) {
 
 export default function Target() {
   const {
-    resumeText,
-    resumeLoaded,
-    fileName,
-    selectedRole,
-    setSelectedRole,
-    seniority,
-    setSeniority,
-    canAdvanceStep1
-    } = useResume();
+  resumeText,
+  resumeLoaded,
+  fileName,
+  selectedRole,
+  setSelectedRole,
+  seniority,
+  setSeniority,
+  canAdvanceStep1,
+  restoring,
+} = useResume();
   const navigate = useNavigate();
   
 
@@ -69,10 +70,11 @@ useEffect(() => {
   window.scrollTo(0, 0);
 }, []);
 useEffect(() => {
-  if (!resumeLoaded) {
+  if (!restoring && !resumeLoaded) {
     navigate("/upload");
   }
-}, [resumeLoaded]);
+}, [restoring, resumeLoaded, navigate]);
+  
 function CtaBtn({ children, onClick, disabled }) {
   return (
     <button disabled={disabled} onClick={onClick} style={{

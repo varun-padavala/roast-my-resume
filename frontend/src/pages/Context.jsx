@@ -63,7 +63,7 @@ function Ghost({ children }) {
 export default function Context() {
   const {
     resumeLoaded,jobDesc,setJobDesc,loading,setLoading,setLoadStep,loadStep,loadDone,setLoadDone,resumeText,
-selectedRole,
+selectedRole,restoring,
 seniority,
 set
     } = useResume();
@@ -75,10 +75,10 @@ useEffect(() => {
   window.scrollTo(0, 0);
 }, []);
 useEffect(() => {
-  if (!resumeLoaded) {
+  if (!restoring && !resumeLoaded) {
     navigate("/upload");
   }
-}, [resumeLoaded]);
+}, [restoring, resumeLoaded, navigate]);
 function CtaBtn({ children, onClick, disabled }) {
   return (
     <button disabled={disabled} onClick={onClick} style={{

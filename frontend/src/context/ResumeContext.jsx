@@ -1,4 +1,4 @@
-```jsx
+
 import { createContext, useContext, useEffect, useState } from "react";
 
 const ResumeContext = createContext();
@@ -172,4 +172,3 @@ export function ResumeProvider({ children }) {
 export function useResume() {
   return useContext(ResumeContext);
 }
-```

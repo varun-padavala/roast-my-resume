@@ -9,14 +9,18 @@ export default function AppNav({ navStep }) {
     <>
       <style>{`
        .app-nav{
-          position: fixed;
-          top: 0;
-          left: 0;
-          right: 0;
+          position:fixed;
+          top:0;
+          left:0;
+          right:0;
 
-          width: 100%;
+          width:100%;
+          height:56px;
+          min-height:56px;
 
-          z-index: 999;
+          z-index:999;
+
+          box-sizing:border-box;
 
           border-bottom:1px solid rgba(255,255,255,.06);
           background:rgba(8,8,8,.9);

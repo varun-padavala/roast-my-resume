@@ -1,17 +1,13 @@
 import { useNavigate } from "react-router-dom";
 import { useResume } from "../context/ResumeContext";
-import { useState, useCallback, useRef } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 import { DEMO_RESUME } from "../data/demoResume";
 import AppNav from "../components/Appnav";
-import { useEffect } from "react";
 import { API_URL } from "../config";
 
 function Eyebrow({ children }) {
   return (
-    <div style={{
-      fontFamily: "'Space Mono',monospace", fontSize: 11, letterSpacing: "0.15em",
-      color: "rgba(255,255,255,0.2)", textTransform: "uppercase", marginBottom: 14
-    }}>
+    <div className="up-eyebrow">
       {children}
     </div>
   );
@@ -19,11 +15,7 @@ function Eyebrow({ children }) {
 
 function BigHeadline({ children }) {
   return (
-    <h1 style={{
-      fontFamily: "'Bebas Neue',sans-serif",
-      fontSize: "clamp(64px,9vw,110px)", lineHeight: 0.95,
-      letterSpacing: "-0.01em", color: "#f0ede8", marginBottom: 18
-    }}>
+    <h1 className="up-h1">
       {children}
     </h1>
   );
@@ -31,283 +23,929 @@ function BigHeadline({ children }) {
 
 function Sub({ children }) {
   return (
-    <p style={{
-      fontSize: 14, color: "rgba(255,255,255,0.3)", lineHeight: 1.65,
-      marginBottom: 32, fontFamily: "'DM Sans',sans-serif", maxWidth: 480
-    }}>
+    <p className="up-sub">
       {children}
     </p>
   );
 }
 
 function Ghost({ children }) {
-  return <span style={{ color: "transparent", WebkitTextStroke: "1.5px #f0ede8" }}>{children}</span>;
+  return (
+    <span className="up-ghost">
+      {children}
+    </span>
+  );
 }
 
 export default function Upload() {
-    
   const navigate = useNavigate();
+
   const {
     setResumeText,
     setFileName,
     setResumeLoaded,
-    resumeText,
-    resumeLoaded,
-    fileName,
   } = useResume();
 
-  const [file, setFile] = useState(null);
   const [dragging, setDragging] = useState(false);
-  const fileRef = useRef();
+  const fileRef = useRef(null);
 
   const handleDrop = useCallback(async (e) => {
     e.preventDefault();
     setDragging(false);
-    const f = e.dataTransfer.files[0];
-    if (!f) return;
-    await uploadResumeFile(f);
+
+    const file = e.dataTransfer.files[0];
+
+    if (!file) return;
+
+    await uploadResumeFile(file);
   }, []);
 
   const handleFile = async (e) => {
-    const f = e.target.files[0];
-    if (!f) return;
-    await uploadResumeFile(f);
+    const file = e.target.files[0];
+
+    if (!file) return;
+
+    e.target.value = "";
+
+    await uploadResumeFile(file);
   };
 
-    const uploadResumeFile = async (file) => {
-  try {
-    const formData = new FormData();
-    formData.append("resume", file);
+  const uploadResumeFile = async (file) => {
+    try {
+      const formData = new FormData();
 
-  const res = await fetch(`${API_URL}/api/upload`, {
-    method: "POST",
-    body: formData,
-  });
+      formData.append("resume", file);
 
-    const data = await res.json();
+      const res = await fetch(`${API_URL}/api/upload`, {
+        method: "POST",
+        body: formData,
+      });
 
-    setResumeText(data.resumeText);
-    setFileName(data.fileName);
+      if (!res.ok) {
+        throw new Error(`Upload failed (${res.status})`);
+      }
+
+      const data = await res.json();
+
+      setResumeText(data.resumeText);
+      setFileName(data.fileName);
+      setResumeLoaded(true);
+
+      navigate("/target");
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const useDemo = () => {
+    const demoText = DEMO_RESUME
+      .map((item) => item.text)
+      .join("\n");
+
+    setResumeText(demoText);
+    setFileName("demo-resume.txt");
     setResumeLoaded(true);
 
-    setFile(file);
-    navigate('/target')
+    navigate("/target");
+  };
 
-  } catch (err) {
-    console.error(err);
-  }
-};
-useEffect(() => {
-  window.scrollTo(0, 0);
-}, []);
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
   return (
     <>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500;700&display=swap');
-        *, *::before, *::after { box-sizing: border-box; margin:0; padding:0; }
-        html, body, #root {
-            height: 100%;
-            overflow-x: hidden;
-            scroll-behavior: auto;
-            }
-        .bg-root {
-          min-height: 100vh;
-          background: #080808;
-          color: #f0ede8;
-          font-family: 'DM Sans', sans-serif;
-          position: relative;
-          isolation: isolate;
-          overflow-x: hidden;
-      }
-        .watermark {
-          position: fixed;
-          top: 120px;
-          right: 120px;
-          font-family: 'Bebas Neue', sans-serif;
-          font-size: clamp(180px, 18vw, 320px);
-          font-weight: 900;
-          color: rgba(255,255,255,0.04);
-          letter-spacing: -0.04em;
-          white-space: nowrap;
-          text-align: right;
-          pointer-events: none;
-          user-select: none;
-          z-index: 0;
+
+        @import url(
+          'https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500;700&display=swap'
+        );
+
+        /* =====================================================
+           ROOT
+        ===================================================== */
+
+        html,
+        body,
+        #root {
+          width:100%;
+          height:100%;
+          margin:0;
+          padding:0;
+          overflow:hidden;
         }
-        @media (max-width: 768px) {
+
+        .upload-page {
+          --nav-height:56px;
+
+          width:100%;
+          height:100dvh;
+
+          position:relative;
+          isolation:isolate;
+
+          overflow:hidden;
+
+          background:#080808;
+          color:#f0ede8;
+
+          font-family:'DM Sans',sans-serif;
+        }
+
+
+        /* =====================================================
+           SOFT GRID
+           
+           Instead of making the entire grid bright, the grid
+           fades naturally toward the edges.
+        ===================================================== */
+
+        .upload-grid {
+          position:absolute;
+          inset:0;
+
+          pointer-events:none;
+          z-index:0;
+
+          opacity:.55;
+
+          background-image:
+            linear-gradient(
+              to right,
+              rgba(255,255,255,.055) 1px,
+              transparent 1px
+            ),
+            linear-gradient(
+              to bottom,
+              rgba(255,255,255,.055) 1px,
+              transparent 1px
+            );
+
+          background-size:80px 80px;
+
+          /*
+            Soft vignette over the grid.
+            Center stays visible while edges disappear.
+          */
+          mask-image:
+            radial-gradient(
+              ellipse 85% 75% at 50% 48%,
+              black 0%,
+              rgba(0,0,0,.85) 45%,
+              transparent 100%
+            );
+
+          -webkit-mask-image:
+            radial-gradient(
+              ellipse 85% 75% at 50% 48%,
+              black 0%,
+              rgba(0,0,0,.85) 45%,
+              transparent 100%
+            );
+        }
+
+
+        /* =====================================================
+           SUBTLE ATMOSPHERE
+        ===================================================== */
+
+        .upload-glow {
+          position:absolute;
+          width:55vw;
+          height:55vw;
+
+          max-width:800px;
+          max-height:800px;
+
+          right:-10%;
+          top:8%;
+
+          pointer-events:none;
+          z-index:0;
+
+          background:
+            radial-gradient(
+              circle,
+              rgba(0,208,132,.055) 0%,
+              rgba(0,208,132,.025) 35%,
+              transparent 70%
+            );
+
+          filter:blur(20px);
+        }
+
+
+        .upload-vignette {
+          position:absolute;
+          inset:0;
+
+          pointer-events:none;
+          z-index:1;
+
+          background:
+            radial-gradient(
+              ellipse at center,
+              transparent 45%,
+              rgba(0,0,0,.22) 100%
+            );
+        }
+
+
+        /* =====================================================
+           WATERMARK
+        ===================================================== */
+
         .watermark {
-            position: fixed;
-            top: 320px;
-            left: 50%;
-            right: auto;
-            transform: translateX(-50%);
-            font-size: clamp(120px, 35vw, 180px);
-            color: rgba(255,255,255,0.08);   /* doubled opacity */
-            z-index: 0;
-            white-space: nowrap;
+          position:absolute;
+
+          right:4%;
+          top:13%;
+
+          font-family:'Bebas Neue',sans-serif;
+
+          font-size:clamp(
+            160px,
+            18vw,
+            300px
+          );
+
+          line-height:.8;
+
+          color:rgba(255,255,255,.025);
+
+          letter-spacing:-.04em;
+
+          white-space:nowrap;
+
+          pointer-events:none;
+          user-select:none;
+
+          z-index:0;
+        }
+
+
+        /* =====================================================
+           MAIN AREA
+        ===================================================== */
+
+        .upload-main {
+          position:relative;
+          z-index:2;
+
+          height:calc(
+            100dvh - var(--nav-height)
+          );
+
+          max-width:1400px;
+
+          margin:0 auto;
+
+          padding:
+            18px
+            clamp(24px,4vw,64px)
+            18px;
+
+          display:flex;
+          flex-direction:column;
+
+          justify-content:center;
+
+          overflow:hidden;
+        }
+
+
+        /* =====================================================
+           BACK BUTTON
+        ===================================================== */
+
+        .up-back {
+          align-self:flex-start;
+
+          display:inline-flex;
+          align-items:center;
+          gap:8px;
+
+          margin-bottom:
+            clamp(12px,1.8dvh,20px);
+
+          padding:0;
+
+          background:none;
+          border:none;
+
+          color:rgba(255,255,255,.4);
+
+          cursor:pointer;
+
+          font-family:'Space Mono',monospace;
+          font-size:10px;
+
+          letter-spacing:.08em;
+          text-transform:uppercase;
+
+          transition:
+            color .2s ease,
+            transform .2s ease;
+        }
+
+        .up-back:hover {
+          color:#f0ede8;
+          transform:translateX(-3px);
+        }
+
+
+        /* =====================================================
+           CONTENT
+        ===================================================== */
+
+        .upload-content {
+          width:100%;
+          max-width:900px;
+
+          animation:
+            uploadEnter
+            .45s
+            cubic-bezier(.16,1,.3,1)
+            both;
+        }
+
+        @keyframes uploadEnter {
+          from {
+            opacity:0;
+            transform:translateY(14px);
+          }
+
+          to {
+            opacity:1;
+            transform:translateY(0);
           }
         }
 
-        .step-enter {
-          animation: stepIn 0.4s cubic-bezier(0.16,1,0.3,1) forwards;
-        }
-        @keyframes stepIn {
-          from { opacity:0; transform:translateY(20px); }
-          to   { opacity:1; transform:translateY(0); }
+
+        .up-eyebrow {
+          margin-bottom:
+            clamp(8px,1.5dvh,14px);
+
+          font-family:'Space Mono',monospace;
+
+          font-size:10px;
+
+          letter-spacing:.15em;
+
+          color:rgba(255,255,255,.25);
+
+          text-transform:uppercase;
         }
 
-        @keyframes checkIn {
-          from { opacity:0; transform:translateX(-10px); }
-          to   { opacity:1; transform:translateX(0); }
-        }
-        .check-in { animation: checkIn 0.3s cubic-bezier(0.16,1,0.3,1) forwards; }
 
-        @keyframes scanLine {
-          0%        { transform:scaleX(0); transform-origin:left; }
-          50%       { transform:scaleX(1); transform-origin:left; }
-          50.001%   { transform-origin:right; }
-          100%      { transform:scaleX(0); transform-origin:right; }
-        }
-        .scan-bar { animation: scanLine 1.2s ease-in-out infinite; }
+        /* =====================================================
+           HEADLINE
+        ===================================================== */
 
-        .text-ghost { color:transparent; -webkit-text-stroke:1.5px #f0ede8; }
+        .up-h1 {
+          margin:0;
 
-        .corner { position:absolute; width:14px; height:14px; border-color:rgba(255,255,255,0.2); border-style:solid; }
-        .corner-tl { top:-1px; left:-1px;    border-width:1px 0 0 1px; }
-        .corner-tr { top:-1px; right:-1px;   border-width:1px 1px 0 0; }
-        .corner-bl { bottom:-1px; left:-1px;  border-width:0 0 1px 1px; }
-        .corner-br { bottom:-1px; right:-1px; border-width:0 1px 1px 0; }
+          font-family:'Bebas Neue',sans-serif;
 
-        .atab {
-          font-family: 'Space Mono', monospace;
-          font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase;
-          background: transparent; border: none;
-          padding: 12px 0; cursor: pointer;
-          position: relative; color: rgba(255,255,255,0.25);
-          transition: color 0.2s;
-        }
-        .atab::after {
-          content:''; position:absolute; bottom:0; left:0; right:0;
-          height:1px; background:#f0ede8;
-          transform:scaleX(0); transition:transform 0.25s cubic-bezier(0.16,1,0.3,1);
-        }
-        .atab.on { color:#f0ede8; }
-        .atab.on::after { transform:scaleX(1); }
-        .atab:hover { color:rgba(255,255,255,0.6); }
+          font-weight:400;
 
-        .tab-fade {
-          animation: tabIn 0.3s cubic-bezier(0.16,1,0.3,1);
-        }
-        @keyframes tabIn {
-          from { opacity:0; transform:translateY(8px); }
-          to   { opacity:1; transform:translateY(0); }
+          font-size:
+            clamp(
+              54px,
+              min(8.5dvh,6.5vw),
+              100px
+            );
+
+          line-height:.86;
+
+          letter-spacing:-.01em;
+
+          color:#f0ede8;
         }
 
-        ::-webkit-scrollbar { width:3px; }
-        ::-webkit-scrollbar-track { background:#080808; }
-        ::-webkit-scrollbar-thumb { background:#222; border-radius:2px; }
+        .up-ghost {
+          color:transparent;
+
+          -webkit-text-stroke:
+            1.5px #f0ede8;
+        }
+
+
+        /* =====================================================
+           DESCRIPTION
+        ===================================================== */
+
+        .up-sub {
+          max-width:480px;
+
+          margin:
+            clamp(12px,2dvh,20px)
+            0
+            clamp(16px,2.5dvh,26px);
+
+          color:rgba(255,255,255,.36);
+
+          font-family:'DM Sans',sans-serif;
+
+          font-size:14px;
+
+          line-height:1.55;
+        }
+
+
+        /* =====================================================
+           DROP ZONE
+        ===================================================== */
+
+        .upload-drop {
+          position:relative;
+
+          width:100%;
+
+          min-height:
+            clamp(
+              150px,
+              24dvh,
+              230px
+            );
+
+          display:flex;
+          flex-direction:column;
+
+          align-items:center;
+          justify-content:center;
+
+          text-align:center;
+
+          padding:
+            24px
+            30px;
+
+          border:
+            1px solid rgba(255,255,255,.08);
+
+          border-radius:6px;
+
+          background:
+            linear-gradient(
+              135deg,
+              rgba(255,255,255,.025),
+              rgba(255,255,255,.008)
+            );
+
+          cursor:pointer;
+
+          transition:
+            border-color .2s ease,
+            background .2s ease,
+            transform .2s ease;
+        }
+
+        .upload-drop:hover {
+          border-color:rgba(255,255,255,.2);
+
+          background:
+            linear-gradient(
+              135deg,
+              rgba(255,255,255,.045),
+              rgba(255,255,255,.015)
+            );
+
+          transform:translateY(-1px);
+        }
+
+        .upload-drop.is-dragging {
+          border-color:#00d084;
+
+          background:
+            rgba(0,208,132,.045);
+
+          box-shadow:
+            0 0 40px rgba(0,208,132,.05);
+        }
+
+
+        /* =====================================================
+           CORNERS
+        ===================================================== */
+
+        .corner {
+          position:absolute;
+
+          width:14px;
+          height:14px;
+
+          border-color:
+            rgba(255,255,255,.22);
+
+          border-style:solid;
+        }
+
+        .corner-bl {
+          bottom:-1px;
+          left:-1px;
+
+          border-width:
+            0
+            0
+            1px
+            1px;
+        }
+
+        .corner-br {
+          bottom:-1px;
+          right:-1px;
+
+          border-width:
+            0
+            1px
+            1px
+            0;
+        }
+
+
+        /* =====================================================
+           UPLOAD ICON
+        ===================================================== */
+
+        .upload-icon {
+          font-size:
+            clamp(
+              28px,
+              4dvh,
+              38px
+            );
+
+          line-height:1;
+
+          opacity:.35;
+
+          margin-bottom:
+            clamp(8px,1.2dvh,14px);
+        }
+
+
+        .upload-title {
+          font-family:'Bebas Neue',sans-serif;
+
+          font-size:
+            clamp(
+              20px,
+              3dvh,
+              28px
+            );
+
+          letter-spacing:.08em;
+
+          line-height:1;
+
+          color:#f0ede8;
+
+          margin-bottom:8px;
+        }
+
+
+        .upload-hint {
+          font-family:'Space Mono',monospace;
+
+          font-size:10px;
+
+          letter-spacing:.1em;
+
+          text-transform:uppercase;
+
+          color:rgba(255,255,255,.28);
+        }
+
+
+        /* =====================================================
+           DEMO
+        ===================================================== */
+
+        .upload-or {
+          display:flex;
+          align-items:center;
+
+          gap:12px;
+
+          margin:
+            10px
+            0;
+
+          font-family:'Space Mono',monospace;
+
+          font-size:10px;
+
+          letter-spacing:.08em;
+
+          color:rgba(255,255,255,.18);
+        }
+
+        .upload-or::before,
+        .upload-or::after {
+          content:"";
+
+          flex:1;
+
+          height:1px;
+
+          background:
+            rgba(255,255,255,.07);
+        }
+
+
+        .demo-button {
+          width:100%;
+
+          padding:
+            clamp(10px,1.8dvh,14px);
+
+          background:
+            rgba(255,255,255,.015);
+
+          color:
+            rgba(255,255,255,.35);
+
+          border:
+            1px solid rgba(255,255,255,.08);
+
+          border-radius:4px;
+
+          font-family:'Space Mono',monospace;
+
+          font-size:10px;
+
+          letter-spacing:.1em;
+
+          text-transform:uppercase;
+
+          cursor:pointer;
+
+          transition:
+            color .2s ease,
+            border-color .2s ease,
+            background .2s ease;
+        }
+
+        .demo-button:hover {
+          color:#f0ede8;
+
+          border-color:
+            rgba(255,255,255,.22);
+
+          background:
+            rgba(255,255,255,.035);
+        }
+
+
+        /* =====================================================
+           DESKTOP HEIGHT FIX
+        ===================================================== */
+
+        @media (max-height:760px) {
+
+          .upload-main {
+            padding-top:10px;
+            padding-bottom:10px;
+          }
+
+          .up-back {
+            margin-bottom:8px;
+          }
+
+          .up-eyebrow {
+            display:none;
+          }
+
+          .up-sub {
+            margin-top:10px;
+            margin-bottom:14px;
+          }
+
+          .upload-drop {
+            min-height:145px;
+          }
+
+        }
+
+
+        /* =====================================================
+           TABLET
+        ===================================================== */
+
+        @media (max-width:900px) {
+
+          .upload-page {
+            --nav-height:82px;
+          }
+
+          .upload-main {
+            padding:
+              14px
+              24px
+              14px;
+          }
+
+          .watermark {
+            right:-8%;
+            top:22%;
+            font-size:180px;
+          }
+
+        }
+
+
+        /* =====================================================
+           PHONE
+        ===================================================== */
+
+        @media (max-width:600px) {
+
+          .upload-page {
+            --nav-height:74px;
+          }
+
+          .upload-main {
+            padding:
+              12px
+              18px
+              12px;
+          }
+
+          .up-back {
+            font-size:9px;
+            margin-bottom:10px;
+          }
+
+          .up-eyebrow {
+            display:none;
+          }
+
+          .up-h1 {
+            font-size:
+              clamp(
+                48px,
+                15vw,
+                70px
+              );
+          }
+
+          .up-sub {
+            font-size:13px;
+            margin:
+              12px
+              0
+              16px;
+          }
+
+          .upload-drop {
+            min-height:150px;
+            padding:20px;
+          }
+
+          .upload-title {
+            font-size:20px;
+          }
+
+          .upload-hint {
+            font-size:9px;
+          }
+
+          .watermark {
+            top:34%;
+            right:auto;
+            left:50%;
+
+            transform:
+              translateX(-50%);
+
+            font-size:
+              clamp(
+                120px,
+                34vw,
+                180px
+              );
+
+            color:
+              rgba(255,255,255,.025);
+          }
+
+        }
+
+
+        /* =====================================================
+           REDUCED MOTION
+        ===================================================== */
+
+        @media (prefers-reduced-motion:reduce) {
+
+          .upload-content {
+            animation:none;
+          }
+
+          .upload-drop {
+            transition:none;
+          }
+
+        }
+
       `}</style>
 
-      <div className="bg-root">
+      <div className="upload-page">
+
+        {/* Background */}
+        <div className="upload-grid" />
+        <div className="upload-glow" />
+        <div className="upload-vignette" />
 
         <div className="bleed-br" />
         <div className="bleed-tl" />
-        
-        <div style={{
-          position: "fixed",
-          inset: 0,
-          opacity: 0.03,
-          pointerEvents: "none",
-          zIndex: 0,
-          backgroundImage: `
-            linear-gradient(to right, white 1px, transparent 1px),
-            linear-gradient(to bottom, white 1px, transparent 1px)
-          `,
-          backgroundSize: "80px 80px",
-        }} />
 
-        <div className="watermark">UPLOAD</div>
+        <div className="watermark">
+          UPLOAD
+        </div>
 
+        {/* Navigation */}
         <AppNav navStep={0} />
-        
-        <div style={{
-          maxWidth: 1400,
-          margin: "0 auto",
-          paddingTop: 20,
-          paddingLeft: 20,
-          paddingRight: 48,
-          paddingBottom:40,
-          position: "relative",
-          zIndex: 2,
-        }}>
+
+        {/* Main content */}
+        <main className="upload-main">
+
           <button
-  onClick={() => navigate(-1)}
-  style={{
-    display: "inline-flex",
-    alignItems: "center",
-    gap: 8,
-    background: "transparent",
-    border: "none",
-    color: "rgba(255,255,255,.45)",
-    cursor: "pointer",
-    fontFamily: "'Space Mono', monospace",
-    fontSize: 11,
-    letterSpacing: ".08em",
-    textTransform: "uppercase",
-    marginBottom: 24,
-    transition: ".2s",
-  }}
-  onMouseEnter={(e) => {
-    e.currentTarget.style.color = "#f0ede8";
-  }}
-  onMouseLeave={(e) => {
-    e.currentTarget.style.color = "rgba(255,255,255,.45)";
-  }}
->
-  ← Back
-</button>
-          <div className="step-enter">
-            <Eyebrow>01 / UPLOAD RESUME</Eyebrow>
+            className="up-back"
+            onClick={() => navigate(-1)}
+          >
+            ← Back
+          </button>
+
+          <div className="upload-content">
+
+            <Eyebrow>
+              01 / UPLOAD RESUME
+            </Eyebrow>
+
             <BigHeadline>
               DROP IT.<br />
               <Ghost>WE'LL HANDLE</Ghost><br />
               THE REST.
             </BigHeadline>
-            <Sub>PDF, DOCX, or TXT. We'll extract every word and run it through the machine.</Sub>
 
+            <Sub>
+              PDF, DOCX, or TXT. We'll extract every word
+              and run it through the machine.
+            </Sub>
+
+            {/* Drop zone */}
             <div
-              style={{
-                position: "relative",
-                border: `1px solid ${dragging ? "rgba(255,255,255,0.5)" : "rgba(255,255,255,0.08)"}`,
-                borderRadius: 6,
-                padding: "100px 40px",
-                textAlign: "center",
-                cursor: "pointer",
-                background: dragging ? "rgba(255,255,255,0.05)" : "rgba(255,255,255,0.02)",
-                transition: "all 0.2s",
+              className={`upload-drop ${
+                dragging ? "is-dragging" : ""
+              }`}
+              role="button"
+              tabIndex={0}
+
+              onDragOver={(e) => {
+                e.preventDefault();
+                setDragging(true);
               }}
-              onDragOver={e => { e.preventDefault(); setDragging(true); }}
-              onDragLeave={() => setDragging(false)}
+
+              onDragLeave={() => {
+                setDragging(false);
+              }}
+
               onDrop={handleDrop}
-              onClick={() => fileRef.current.click()}
+
+              onClick={() => {
+                fileRef.current?.click();
+              }}
+
+              onKeyDown={(e) => {
+                if (
+                  e.key === "Enter" ||
+                  e.key === " "
+                ) {
+                  e.preventDefault();
+                  fileRef.current?.click();
+                }
+              }}
             >
-              
+
               <div className="corner corner-bl" />
               <div className="corner corner-br" />
 
-              <div style={{ fontSize: 40, marginBottom: 16, opacity: 0.35 }}>📄</div>
-              <div style={{
-                fontFamily: "'Bebas Neue',sans-serif", fontSize: 26,
-                letterSpacing: "0.08em", color: "#f0ede8", marginBottom: 8,
-              }}>
-                {dragging ? "RELEASE TO UPLOAD" : "DRAG & DROP YOUR RESUME"}
+              <div className="upload-icon">
+                📄
               </div>
-              <div style={{
-                fontFamily: "'Space Mono',monospace", fontSize: 11,
-                color: "rgba(255,255,255,0.28)", letterSpacing: "0.1em", textTransform: "uppercase",
-              }}>
+
+              <div className="upload-title">
+                {dragging
+                  ? "RELEASE TO UPLOAD"
+                  : "DRAG & DROP YOUR RESUME"}
+              </div>
+
+              <div className="upload-hint">
                 or click to browse — PDF, DOCX, TXT
               </div>
+
               <input
                 ref={fileRef}
                 type="file"
@@ -315,38 +953,23 @@ useEffect(() => {
                 style={{ display: "none" }}
                 onChange={handleFile}
               />
+
             </div>
 
-            <div style={{ marginTop: 20, textAlign: "center" }}>
-              <span style={{
-                fontFamily: "'Space Mono',monospace", fontSize: 11,
-                color: "rgba(255,255,255,0.18)", letterSpacing: "0.08em",
-              }}>— or —</span>
+            <div className="upload-or">
+              or
             </div>
+
             <button
-              style={{
-                width: "100%", marginTop: 14, padding: "14px",
-                background: "transparent", color: "rgba(255,255,255,0.35)",
-                border: "1px solid rgba(255,255,255,0.08)", borderRadius: 4,
-                fontFamily: "'Space Mono',monospace", fontSize: 11,
-                letterSpacing: "0.1em", textTransform: "uppercase", cursor: "pointer",
-                transition: "all 0.15s",
-              }}
-              onClick={() => {
-                const demoText = DEMO_RESUME.map(item => item.text).join("\n");
-                setResumeText(demoText);
-                setFileName("demo-resume.txt");
-                setResumeLoaded(true);
-                setFile({ name: "demo-resume.txt" });
-                navigate('/target');
-                console.log("API_URL =", API_URL);
-              }}
+              className="demo-button"
+              onClick={useDemo}
             >
-
               USE DEMO RESUME INSTEAD →
             </button>
+
           </div>
-        </div>
+
+        </main>
 
       </div>
     </>

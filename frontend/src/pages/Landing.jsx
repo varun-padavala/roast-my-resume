@@ -1,6 +1,4 @@
-import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { motion } from "framer-motion";
 import DemoRoast from "../components/Demo";
 import Nav from "../components/Nav";
 import Hero from "../components/Hero";
@@ -53,86 +51,77 @@ const PERSONALITIES = [
     desc: "Zero patience. Brutally direct. Demands evidence. Mocks vague claims. Ends with a rejection-style verdict.",
   },
 ];
-//subcomponents
-function ThinkingDots({ color }) {
-  return (
-    <span style={{ display: "inline-flex", gap: 3, alignItems: "center" }}>
-      {[0, 1, 2].map((i) => (
-        <span
-          key={i}
-          style={{
-            display: "inline-block", width: 4, height: 4, borderRadius: "50%",
-            background: color, opacity: 0.5,
-            animation: `thinkDot 1.2s ${i * 0.3}s ease-in-out infinite`,
-          }}
-        />
-      ))}
-    </span>
-  );
-}
- 
+
 export default function Landing() {
   const navigate = useNavigate();
-  const scrollToDemo = () => {
-  const demo = document.getElementById("lp-demo");
-  if (!demo) return;
 
-  window.scrollTo({
-    top: demo.offsetTop - 56,
-    behavior: "smooth",
-  });
-};
+  // Offset is handled in CSS (scroll-margin-top on #lp-demo), so it stays
+  // correct at any zoom level or nav height.
+  const scrollToDemo = () => {
+    document.getElementById("lp-demo")?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
+
   return (
     <>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500;700&display=swap');
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-        html, body, #root { height: 100%; }
         html, body { overflow-x: hidden; width: 100%; }
+        html { -webkit-text-size-adjust: 100%; }
+        body { min-height: 100%; background: #080808; }
+
+        /* ---------- Hero shell ----------
+           Contains the animation + the huge "VERDICT" ghost text so nothing
+           spills past the hero or gets chopped by the next section, and fades
+           the bottom edge so there is no hard cut line. */
+        .lp-hero-shell {
+          position: relative;
+          width: 100%;
+          overflow: hidden;
+          isolation: isolate;
+          -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 72px), transparent 100%);
+                  mask-image: linear-gradient(to bottom, #000 calc(100% - 72px), transparent 100%);
+        }
+        /* Anything the Hero renders must never be wider than the viewport.
+           This is what keeps the layout intact when the browser is zoomed. */
+        .lp-hero-shell > * { max-width: 100%; }
+        .lp-hero-shell img, .lp-hero-shell svg, .lp-hero-shell canvas { max-width: 100%; }
+
+        #lp-demo { scroll-margin-top: 80px; }
 
         .lp-nav{
-    position:fixed;
-    top:0;
-    left:0;
-    right:0;
+          position:fixed;
+          top:0;
+          left:0;
+          right:0;
+          height:56px;
+          display:flex;
+          align-items:center;
+          justify-content:space-between;
+          padding:0 24px;
+          z-index:1000;
+          backdrop-filter:blur(18px);
+          -webkit-backdrop-filter:blur(18px);
+          background:rgba(8,8,8,.45);
+          border-bottom:1px solid rgba(255,255,255,.06);
+        }
 
-    height:56px;
-
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-
-    padding:0 24px;
-
-    z-index:1000;
-
-    backdrop-filter:blur(18px);
-    -webkit-backdrop-filter:blur(18px);
-
-    background:rgba(8,8,8,.45);
-
-    border-bottom:1px solid rgba(255,255,255,.06);
-}
-
-          @media (max-width:768px){
-
-            .lp-nav{
-              padding:12px 16px;
-              flex-wrap:wrap;
-            }
-
-            .lp-nav button{
-              font-size:12px !important;
-              padding:8px 14px !important;
-            }
-
+        @media (max-width:768px){
+          .lp-nav{
+            padding:12px 16px;
+            flex-wrap:wrap;
           }
-
-          @media (max-width:420px){
-            .lp-nav-badge-text{
-              display:none;
-            }
+          .lp-nav button{
+            font-size:12px !important;
+            padding:8px 14px !important;
           }
+        }
+
+        @media (max-width:420px){
+          .lp-nav-badge-text{
+            display:none;
+          }
+        }
 
         .lp-bleed-tl {
           position: absolute; top: 0; left: 0;
@@ -176,18 +165,15 @@ export default function Landing() {
           .lp-stat:first-child{ padding-left: 16px; }
         }
 
+        /* Sections: same side padding everywhere, content capped and centred
+           so wide screens / zoomed-out views stay aligned with each other. */
         .lp-section{
-              padding:64px 40px;
-              overflow-x: hidden;
-          }
-
-          @media(max-width:768px){
-
-          .lp-section{
-              padding:48px 20px;
-          }
-
-          }
+          padding: 64px max(40px, calc((100% - 1200px) / 2));
+          overflow-x: hidden;
+        }
+        @media (max-width:768px){
+          .lp-section{ padding: 48px 20px; }
+        }
         .lp-section-label {
           font-family: 'Space Mono', monospace; font-size: 9px;
           letter-spacing: 0.2em; color: rgba(255,255,255,0.2);
@@ -203,7 +189,7 @@ export default function Landing() {
         .lp-how-grid {
           display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px;
         }
-        @media (max-width: 768px) { .lp-how-grid { grid-template-columns: 1fr 1fr; } }
+        @media (max-width: 900px) { .lp-how-grid { grid-template-columns: 1fr 1fr; } }
         @media (max-width: 420px) { .lp-how-grid { grid-template-columns: 1fr; } }
         .lp-how-step {
           border: 1px solid rgba(255,255,255,0.07); border-radius: 6px;
@@ -261,22 +247,6 @@ export default function Landing() {
           transition: all 0.2s;
         }
         .lp-btn-primary:hover { transform: scale(1.02); }
-        .lp-btn-ghost {
-          font-family: 'Space Mono', monospace; font-size: 10px;
-          letter-spacing: 0.12em; text-transform: uppercase;
-          color: rgba(255,255,255,0.35); background: none;
-          border: 1px solid rgba(255,255,255,0.12); border-radius: 4px;
-          padding: 8px 16px; cursor: pointer; transition: all 0.2s;
-        }
-        .lp-btn-ghost:hover { color: #f0ede8; border-color: rgba(255,255,255,0.3); }
-        .lp-btn-outline {
-          font-family: 'Bebas Neue', sans-serif; font-size: 18px;
-          letter-spacing: 0.1em; padding: 12px 28px; border-radius: 4px;
-          background: transparent; color: #f0ede8;
-          border: 1px solid rgba(255,255,255,0.2); cursor: pointer;
-          transition: all 0.2s;
-        }
-        .lp-btn-outline:hover { border-color: rgba(255,255,255,0.4); }
 
         .lp-bar-track {
           height: 3px; background: rgba(255,255,255,0.07);
@@ -284,7 +254,7 @@ export default function Landing() {
         }
 
         .lp-footer {
-          padding: 24px 40px;
+          padding: 24px max(40px, calc((100% - 1200px) / 2));
           border-top: 1px solid rgba(255,255,255,0.07);
           display: flex; align-items: center; justify-content: space-between;
           gap: 12px; flex-wrap: wrap;
@@ -309,14 +279,18 @@ export default function Landing() {
         ::-webkit-scrollbar { width: 2px; }
         ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 2px; }
         ::-webkit-scrollbar-track { background: transparent; }
+
+        @media (prefers-reduced-motion: reduce) {
+          * { animation-duration: 0.01ms !important; transition: none !important; scroll-behavior: auto !important; }
+        }
       `}</style>
 
       <div>
-        
-        <Nav></Nav>
+        <Nav />
 
-
-        <Hero onTryDemo={scrollToDemo} />
+        <div className="lp-hero-shell">
+          <Hero onTryDemo={scrollToDemo} />
+        </div>
 
         <section className="lp-section" style={{ paddingTop: 20 }}>
           <p className="lp-section-label">// Meet the panel</p>
@@ -357,7 +331,6 @@ export default function Landing() {
           <DemoRoast />
         </section>
 
-        
         <section className="lp-section">
           <p className="lp-section-label">// How it works</p>
           <h2 className="lp-section-h2">THE PROCESS IS<br />SIMPLE. THE PAIN<br />IS NOT.</h2>
@@ -378,7 +351,6 @@ export default function Landing() {
           </div>
         </section>
 
-        
         <section className="lp-section">
           <p className="lp-section-label">// ATS scoring engine</p>
           <h2 className="lp-section-h2">THE MACHINE<br />NEVER LIES.</h2>
@@ -420,7 +392,6 @@ export default function Landing() {
               </div>
             </div>
 
-            
             <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
               <div style={{ border: "1px solid rgba(255,255,255,0.07)", borderRadius: 6, padding: 18, background: "rgba(255,255,255,0.012)", flex: 1 }}>
                 <p style={{ fontFamily: "'Space Mono', monospace", fontSize: 8, letterSpacing: "0.14em", textTransform: "uppercase", color: "#00d084", marginBottom: 12 }}>✓ STRENGTHS</p>
@@ -452,9 +423,8 @@ export default function Landing() {
           </div>
         </section>
 
-        
         <section className="lp-section" style={{ textAlign: "center", position: "relative", overflow: "hidden" }}>
-          <div style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%,-50%)", width: 600, height: 300, background: "radial-gradient(ellipse, rgba(255,255,255,0.02) 0%, transparent 70%)", pointerEvents: "none" }} />
+          <div style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%,-50%)", width: "min(600px, 100%)", height: 300, background: "radial-gradient(ellipse, rgba(255,255,255,0.02) 0%, transparent 70%)", pointerEvents: "none" }} />
           <div style={{ position: "relative", zIndex: 2 }}>
             <p className="lp-section-label" style={{ marginBottom: 16 }}>// Ready to face judgment?</p>
             <h2 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "clamp(48px, 6vw, 72px)", letterSpacing: "0.02em", color: "#f0ede8", lineHeight: 0.95, marginBottom: 24 }}>
@@ -473,7 +443,6 @@ export default function Landing() {
           </div>
         </section>
 
-        
         <footer className="lp-footer">
           <span style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 16, letterSpacing: "0.06em", color: "rgba(255,255,255,0.25)" }}>
             RoastMyResume.ai
@@ -482,7 +451,6 @@ export default function Landing() {
             © 2026 — ALL VERDICTS FINAL
           </span>
         </footer>
-
       </div>
     </>
   );

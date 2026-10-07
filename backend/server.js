@@ -13,7 +13,7 @@ const app = express();
 app.use(cors({
   origin: [
     "http://localhost:5173",
-    "https://roast-my-resume-gray.vercel.app"
+    "https://roast-my-resume-gray.vercel.app",
   ]
 }));
 

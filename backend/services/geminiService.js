@@ -12,7 +12,7 @@ export async function callGemini(systemPrompt, userPrompt, retries = 3) {
   for (let attempt = 1; attempt <= retries; attempt++) {
     try {
       const response = await groq.chat.completions.create({
-        model: "llama-3.3-70b-versatile",
+        model: "openai/gpt-oss-120b",
 
         messages: [
           {
